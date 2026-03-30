@@ -1,0 +1,14 @@
+# Backend
+backend/__pycache__/
+backend/*.pyc
+backend/placementprep.db
+backend/.env
+backend/test.py
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+
+# General
+.DS_Store
+*.env
