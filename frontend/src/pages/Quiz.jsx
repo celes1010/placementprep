@@ -128,13 +128,17 @@ export default function Quiz() {
   }
 
   const handleEnd = async () => {
-    try {
-      const res = await axios.post('/quiz/end', { session_id: session.session_id })
-      navigate('/results', { state: { summary: res.data, topic: session.topic } })
-    } catch {
-      navigate('/topics')
-    }
+  try {
+    const res = await axios.post('/quiz/end', { session_id: session.session_id })
+    navigate('/results', { state: { 
+      summary: res.data, 
+      topic: session.topic,
+      session_id: session.session_id
+    }})
+  } catch {
+    navigate('/topics')
   }
+}
 
   const diffColor = { easy: 'var(--easy)', medium: 'var(--medium)', hard: 'var(--hard)' }
   const timerPct = (timer / TIMER_SECONDS) * 100

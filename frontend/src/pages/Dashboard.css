@@ -4,7 +4,7 @@
   padding: 40px 24px 60px;
   display: flex;
   flex-direction: column;
-  gap: 28px;
+  gap: 24px;
 }
 
 .dash-loading {
@@ -30,7 +30,7 @@
 
 .dash-sub { color: var(--text-muted); margin-top: 4px; font-size: 0.9rem; }
 
-/* Stat cards row */
+/* Stat cards */
 .dash-stats-row {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -54,6 +54,9 @@
 
 .dash-stat-val { font-size: 1.8rem; font-weight: 700; }
 .dash-stat-label { font-size: 0.75rem; color: var(--text-muted); }
+
+/* Accuracy chart */
+.dash-accuracy-chart { display: flex; flex-direction: column; }
 
 /* Main grid */
 .dash-grid {
@@ -83,10 +86,7 @@
 }
 
 /* Topic rows */
-.dash-topics {
-  display: flex;
-  flex-direction: column;
-}
+.dash-topics { display: flex; flex-direction: column; }
 
 .dash-topic-row {
   padding: 14px 0;
@@ -105,7 +105,12 @@
 }
 
 .dash-topic-name { font-size: 0.9rem; font-weight: 600; }
-.dash-topic-diff { font-size: 0.72rem; font-family: var(--font-mono); font-weight: 700; text-transform: uppercase; }
+.dash-topic-diff {
+  font-size: 0.72rem;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  text-transform: uppercase;
+}
 
 .dash-progress-wrap {
   display: flex;
@@ -142,17 +147,9 @@
 }
 
 /* Pie */
-.dash-pie-card {
-  display: flex;
-  flex-direction: column;
-}
+.dash-pie-card { display: flex; flex-direction: column; }
 
-.pie-legend {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-top: 12px;
-}
+.pie-legend { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
 
 .pie-legend-item {
   display: flex;
@@ -162,16 +159,11 @@
   color: var(--text-muted);
 }
 
-.pie-dot {
-  width: 8px; height: 8px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
+.pie-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
 
 /* Sessions */
 .dash-sessions { display: flex; flex-direction: column; }
-
-.sessions-list { display: flex; flex-direction: column; gap: 0; }
+.sessions-list { display: flex; flex-direction: column; }
 
 .session-row {
   display: flex;
@@ -183,7 +175,14 @@
 }
 
 .session-row:last-child { border-bottom: none; }
-.session-topic { flex: 1; font-weight: 500; }
+.session-topic { font-weight: 500; font-size: 0.875rem; }
 .session-stats { color: var(--text-muted); font-size: 0.8rem; }
 .session-acc { font-weight: 700; font-family: var(--font-mono); min-width: 40px; text-align: right; }
-.session-diff { font-family: var(--font-mono); font-size: 0.72rem; text-transform: uppercase; font-weight: 700; min-width: 50px; text-align: right; }
+.session-diff {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  font-weight: 700;
+  min-width: 50px;
+  text-align: right;
+}

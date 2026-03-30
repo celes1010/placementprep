@@ -40,7 +40,7 @@ export default function AdminLogin() {
         </div>
 
         <h1 className="auth-title">Admin Login</h1>
-        <p className="auth-sub">PlacementPrep AI — Admin Access Only</p>
+        <p className="auth-sub">QuizPal — Admin Access Only</p>
 
         <form onSubmit={handle} className="auth-form">
           {error && <div className="auth-error animate-slideDown">{error}</div>}

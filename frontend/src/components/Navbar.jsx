@@ -18,7 +18,7 @@ export default function Navbar() {
     <nav className="navbar">
       <Link to="/dashboard" className="navbar-logo">
         <span className="navbar-logo-icon">⬡</span>
-        <span>PlacementPrep<em>AI</em></span>
+        <span>Quiz<em>Pal</em></span>
       </Link>
 
       <div className="navbar-links">

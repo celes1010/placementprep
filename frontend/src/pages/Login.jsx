@@ -35,7 +35,7 @@ export default function Login() {
       <div className="auth-box animate-fadeUp">
         <div className="auth-logo">
           <span className="auth-logo-icon">⬡</span>
-          <span className="auth-logo-text">PlacementPrep<span>AI</span></span>
+          <span className="auth-logo-text">Quiz<span>Pal</span></span>
         </div>
 
         <h1 className="auth-title">Welcome back</h1>

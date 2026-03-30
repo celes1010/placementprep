@@ -76,7 +76,27 @@ Make the question genuinely useful for placement interviews. Make wrong options 
             raw = raw[4:]
     raw = raw.strip()
 
-    return json.loads(raw)
+    import random
+    data = json.loads(raw)
+
+    # Shuffle options so correct answer isn't always A or B
+    options = list(data["options"].items())  # [("A", "text"), ("B", "text"), ...]
+    correct_text = data["options"][data["correct"]]  # get the correct answer text
+    random.shuffle(options)
+
+    # Rebuild options dict with new positions
+    keys = ["A", "B", "C", "D"]
+    new_options = {}
+    new_correct = None
+    for i, (_, text) in enumerate(options):
+        new_options[keys[i]] = text
+        if text == correct_text:
+            new_correct = keys[i]
+
+    data["options"] = new_options
+    data["correct"] = new_correct
+
+    return data
 
 
 @quiz_bp.route("/start", methods=["POST"])
@@ -281,3 +301,98 @@ def end_session():
         "correct_answers": session["correct_answers"],
         "accuracy": round(session["correct_answers"] / max(session["total_questions"], 1) * 100, 1)
     })
+@quiz_bp.route("/feedback", methods=["POST"])
+@jwt_required()
+def get_feedback():
+    user_id = int(get_jwt_identity())
+    data = request.get_json()
+    session_id = data.get("session_id")
+    topic = data.get("topic")
+
+    conn = get_db()
+
+    # Get all attempts from this session
+    attempts = conn.execute(
+        """SELECT question_text, correct_option, selected_option, is_correct, difficulty
+           FROM question_attempts WHERE session_id = ? AND user_id = ?
+           ORDER BY attempted_at""",
+        (session_id, user_id)
+    ).fetchall()
+
+    # Get overall topic stats
+    stats = conn.execute(
+        "SELECT * FROM user_topic_stats WHERE user_id = ? AND topic = ?",
+        (user_id, topic)
+    ).fetchone()
+
+    conn.close()
+
+    if not attempts:
+        return jsonify({"error": "No attempts found"}), 404
+
+    total = len(attempts)
+    correct = sum(1 for a in attempts if a["is_correct"])
+    wrong_questions = [a["question_text"] for a in attempts if not a["is_correct"]]
+    accuracy = round(correct / max(total, 1) * 100, 1)
+
+    # Build prompt for Groq
+    wrong_text = "\n".join(f"- {q}" for q in wrong_questions) if wrong_questions else "None — perfect session!"
+
+    prompt = f"""A student just completed a practice session on "{topic}".
+
+Session Summary:
+- Total questions: {total}
+- Correct answers: {correct}
+- Accuracy: {accuracy}%
+- Current difficulty level: {stats["current_difficulty"] if stats else "easy"}
+- Best streak: {stats["best_streak"] if stats else 0}
+
+Questions they got WRONG:
+{wrong_text}
+
+Based on this performance, give personalized feedback in this exact JSON format:
+{{
+  "overall": "One encouraging sentence about their overall performance",
+  "strengths": "What they are doing well based on the questions they got right",
+  "weak_areas": "Specific subtopics or concepts they struggled with based on wrong questions",
+  "focus_topics": ["topic 1", "topic 2", "topic 3"],
+  "tip": "One specific actionable study tip for their weakest area",
+  "next_goal": "A specific target for their next session"
+}}
+
+Be specific, encouraging, and actionable. Keep each field concise (1-2 sentences max)."""
+
+    try:
+        client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+        response = client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=[
+                {
+                    "role": "system",
+                    "content": "You are a helpful placement coach giving personalized feedback. Always respond with valid JSON only."
+                },
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ],
+            max_tokens=600,
+            temperature=0.7,
+        )
+
+        raw = response.choices[0].message.content.strip()
+        if raw.startswith("```"):
+            raw = raw.split("```")[1]
+            if raw.startswith("json"):
+                raw = raw[4:]
+        raw = raw.strip()
+
+        feedback = json.loads(raw)
+        feedback["accuracy"] = accuracy
+        feedback["correct"] = correct
+        feedback["total"] = total
+
+        return jsonify({"feedback": feedback})
+
+    except Exception as e:
+        return jsonify({"error": f"Feedback generation failed: {str(e)}"}), 500
